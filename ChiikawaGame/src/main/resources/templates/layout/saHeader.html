@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>saHeader</title>
+
+    <!-- Import Bootstrap CSS 和自訂樣式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./static/css/custom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <!-- 頁首區域 -->
+    <header class="p-3 bg-dark text-white">
+        <div class="container-fluid">
+            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                <!-- 管理操作選單 -->
+                <ul class="nav me-auto">
+                    <li><a href="/" class="btn btn-warning text-black">CHKWGameStop</a></li>
+                </ul>
+
+                <!-- 搜尋欄 -->
+                <form class="d-flex justify-content-center me-auto" role="search">
+                    <input type="search" class="form-control form-control-dark me-2" placeholder="Search..." aria-label="Search" style="width: 300px;">
+                    <button type="submit" class="btn btn-outline-light">搜尋</button>
+                </form>
+
+                <!-- 購物車按鈕和會員操作按鈕 -->
+                <div class="text-end d-flex align-items-center">
+                    <a href="./cart.html" class="btn btn-outline-light me-2">
+                        <i class="bi bi-cart"></i> 購物車
+                    </a>
+
+                    <!-- Mantle 按鈕 (Dropdown) -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="mantleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Mantle
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mantleDropdown">
+                            <li><a class="dropdown-item" href="./member-center.html">會員中心</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="./logout.html">登出</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 引入 Bootstrap JavaScript 和 Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 測試 JavaScript 確認 Dropdown 功能啟動 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+            dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>廣告管理</title>
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<style>
+  /* 垂直置中表格內容 */
+  #adTable td, #newAdTable td {
+      vertical-align: middle;
+  }
+  /* 調整輸入框與按鈕的垂直對齊 */
+  .input-group,
+  .form-control,
+  .form-select,
+  .btn {
+      display: flex;
+      align-items: center;
+      height: 100%;
+  }
+</style>
+</head>
+<body>
+  <div th:replace="~{layout/saHeader}"></div>
+  <div class="container mt-4">
+      <!-- 查詢廣告 -->
+      <div class="mb-4">
+          <h2>查詢廣告</h2>
+          <input type="text" id="searchInput" class="form-control" placeholder="輸入廣告名稱來查詢" onkeyup="searchAdInfo()">
+      </div>
+      <br>
+      <!-- 新增廣告 -->
+      <h2>新增廣告</h2>
+      <table id="newAdTable" class="table table-striped align-middle">
+          <tr>
+              <td><label for="newAdName">廣告名稱</label><input type="text" id="newAdName" class="form-control" placeholder="廣告名稱"></td>
+              <td><label for="newAdInfo">廣告敘述</label><input type="text" id="newAdInfo" class="form-control" placeholder="廣告敘述"></td>
+              <td><label for="newAdImage">廣告圖片</label><input type="file" id="newAdImage" class="form-control"></td>
+              <td><button class="btn btn-primary mt-4" onclick="addAd()">新增</button></td>
+          </tr>
+      </table>
+      <br>
+      <!-- 廣告列表 -->
+      <h2>廣告列表</h2>
+      <table id="adTable" class="table table-striped align-middle">
+          <thead>
+              <tr>
+                  <th>廣告ID</th>
+                  <th>廣告名稱</th>
+                  <th>廣告敘述</th>
+                  <th>廣告圖片</th>
+                  <th>操作</th>
+              </tr>
+          </thead>
+          <tbody id="adTableBody"></tbody>
+      </table>
+  </div>
+  <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+  <script>
+      // 初始化頁面時載入廣告資料
+      document.addEventListener("DOMContentLoaded", loadAdInfo);
+
+      // 查詢廣告資料
+      function searchAdInfo() {
+          const filter = document.getElementById("searchInput").value.toLowerCase();
+          const rows = document.querySelectorAll("#adTableBody tr");
+          rows.forEach(row => {
+              const adName = row.querySelector(".ad-name").value.toLowerCase();
+              const match = adName.includes(filter);
+              row.style.display = match ? "" : "none";
+          });
+      }
+
+      // 載入廣告資料
+      function loadAdInfo() {
+          fetch("/adInfo/json")
+              .then(response => response.json())
+              .then(data => {
+                  const tableBody = document.getElementById("adTableBody");
+                  tableBody.innerHTML = "";
+                  data.forEach(ad => {
+    const row = `
+        <tr>
+            <td>${ad.adId}</td>
+            <td><input type="text" class="form-control ad-name" value="${ad.adName}"></td>
+            <td><input type="text" class="form-control ad-info" value="${ad.adInfo}"></td>
+            <td>
+                <img src="data:image/jpeg;base64,${ad.adImageBase64}" alt="廣告圖片" class="img-thumbnail" style="max-width: 100px;">
+            </td>
+            <td><button class="btn btn-success" onclick="updateAd(${ad.adId}, this)">儲存</button></td>
+        </tr>
+    `;
+    tableBody.insertAdjacentHTML("beforeend", row);
+});
+              })
+              .catch(error => {
+                  console.error("Error:", error);
+                  alert("無法載入廣告資料，請稍後再試。");
+              });
+      }
+
+      // 新增廣告
+      function addAd() {
+    const newAd = new FormData();
+    newAd.append("adName", document.getElementById("newAdName").value);
+    newAd.append("adInfo", document.getElementById("newAdInfo").value);
+    newAd.append("adImage", document.getElementById("newAdImage").files[0]);
+
+    fetch("/adInfo/add", {
+        method: "POST",
+        body: newAd // 使用 FormData 傳遞 multipart/form-data
+    })
+    .then(response => response.text())
+    .then(message => {
+        alert(message);
+        document.getElementById("newAdName").value = "";
+        document.getElementById("newAdInfo").value = "";
+        document.getElementById("newAdImage").value = "";
+        loadAdInfo();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("新增失敗，請稍後再試。");
+    });
+}
+
+      // 更新廣告資料
+      function updateAd(adId, button) {
+          const row = button.closest("tr");
+          const updatedAd = {
+              adId: adId,
+              adName: row.querySelector(".ad-name").value,
+              adInfo: row.querySelector(".ad-info").value
+          };
+
+          fetch("/adInfo/update", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedAd)
+          })
+          .then(response => response.text())
+          .then(message => {
+              alert(message);
+              loadAdInfo();
+          })
+          .catch(error => {
+              console.error("Error:", error);
+              alert("更新失敗，請稍後再試。");
+          });
+      }
+  </script>
+</body>
+</html>

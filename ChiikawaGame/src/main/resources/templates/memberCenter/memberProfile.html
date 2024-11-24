@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+   <meta charset="UTF-8">
+   <title>我的會員中心</title>
+   <!-- Import Bootstrap CSS -->
+   <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+   <link th:href="@{/css/custom.css}" rel="stylesheet">
+   <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+   <script th:src="@{/js/jquery.min.js}"></script>
+   <style>
+       #mainContent {
+           width: 70%;
+           max-width: 1400px;
+           min-width: 900px;
+           margin: 0 auto;
+           padding: 32px;
+           border-radius: 10px;
+       }
+
+       .form-title {
+           font-size: 2rem;
+           font-weight: bold;
+           margin-bottom: 20px;
+           text-align: center;
+       }
+
+       .form-control {
+           width: 100%;
+           max-width: 1000px;
+           margin: 0 auto;
+       }
+
+       .btn-custom {
+           height: 50px;
+           font-size: 1.2rem;
+       }
+   </style>
+</head>
+<body>
+   <!-- 引入 userHeader -->
+   <div th:replace="~{layout/userHeader}"></div>
+
+   <!-- Flexbox -->
+   <div class="d-flex" style="height: 100vh;">
+       <!-- 引入側邊欄 -->
+       <div th:replace="~{layout/memberCenterSidebar}"></div>
+
+       <!-- 主要內容 -->
+       <div id="mainContent" class="p-4">
+           <h2 class="form-title">我的帳戶</h2>
+           <div id="contentArea">
+               <p>請繼續點選左側選單項目以編輯內容。</p>
+           </div>
+       </div>
+   </div>
+
+   <script>
+       const contentArea = document.getElementById('contentArea');
+
+       document.addEventListener("DOMContentLoaded", () => {
+           const profileLink = document.getElementById("profileLink");
+           if (profileLink) {
+               profileLink.addEventListener("click", function (event) {
+                   event.preventDefault();
+                   loadProfileContent();
+               });
+           }
+           const paymentLink = document.getElementById("paymentLink");
+           if (paymentLink) {
+               paymentLink.addEventListener("click", function (event) {
+                   event.preventDefault();
+                   loadPaymentContent();
+               });
+           }
+           const addressLink = document.getElementById("addressLink");
+           if (addressLink) {
+               addressLink.addEventListener("click", function (event) {
+                   event.preventDefault();
+                   loadAddressContent();
+               });
+           }
+       });
+
+       function loadProfileContent() {
+           contentArea.innerHTML = `
+               <h4 class="form-title">管理個人檔案</h4>
+               <form id="profileForm" class="needs-validation" novalidate style="max-width: 600px; margin: 0 auto;">
+                   <div class="mb-3">
+                       <label for="firstName" class="form-label">姓名</label>
+                       <input type="text" class="form-control shadow-sm rounded" id="firstName" th:value="\${userInfo.userName}" required>
+                   </div>
+                   <div class="mb-3">
+                       <label for="email" class="form-label">Email</label>
+                       <input type="email" class="form-control shadow-sm rounded" id="email" th:value="\${userInfo.userEmail}" readonly>
+                   </div>
+                   <div class="mb-3">
+                       <label for="password" class="form-label">密碼</label>
+                       <div class="input-group shadow-sm rounded">
+                           <input type="password" class="form-control" id="password" th:value="\${userInfo.userPassword}">
+                           <button type="button" class="btn btn-outline-secondary" id="togglePassword">顯示密碼</button>
+                       </div>
+                   </div>
+                   <div class="mb-3">
+                       <label for="phone" class="form-label">電話</label>
+                       <input type="text" class="form-control shadow-sm rounded" id="phone" th:value="\${userInfo.userTel}" required>
+                   </div>
+                   <button type="button" class="btn btn-primary btn-custom mt-3 w-100 shadow-sm rounded" 
+                           onclick="updateMember()">
+                       修改個人資料
+                   </button>
+               </form>
+           `;
+       }
+
+       function loadPaymentContent() {
+           contentArea.innerHTML = `
+               <h4 class="form-title">管理收/付款方式</h4>
+               <div style="max-width: 600px; margin: 0 auto;">
+                   <div class="d-flex justify-content-between align-items-center mb-3">
+                       <h5>我的付款方式</h5>
+                       <button class="btn btn-secondary" id="addPaymentMethodButton">新增付款方式</button>
+                   </div>
+                   <ul class="list-group mb-4">
+                       <li class="list-group-item d-flex justify-content-between align-items-center">
+                           <span>Visa **** 4026</span>
+                           <div>
+                               <button class="btn btn-outline-danger btn-sm me-2">刪除</button>
+                               <button class="btn btn-outline-primary btn-sm">設為預設</button>
+                           </div>
+                       </li>
+                   </ul>
+               </div>
+           `;
+       }
+
+       function loadAddressContent() {
+           contentArea.innerHTML = `
+               <h4 class="form-title">管理運送地址</h4>
+               <div style="max-width: 600px; margin: 0 auto;">
+                   <div class="d-flex justify-content-between align-items-center mb-3">
+                       <h5>我的地址</h5>
+                       <button class="btn btn-secondary" id="addAddressButton">新增地址</button>
+                   </div>
+                   <ul class="list-group mb-4">
+                       <li class="list-group-item d-flex justify-content-between align-items-center">
+                           <span>台南市永康區南台街1號</span>
+                           <div>
+                               <button class="btn btn-outline-danger btn-sm me-2">刪除</button>
+                               <button class="btn btn-outline-primary btn-sm">設為預設</button>
+                           </div>
+                       </li>
+                   </ul>
+               </div>
+           `;
+       }
+
+       // 密碼顯示/隱藏
+       document.addEventListener('click', function (event) {
+           if (event.target && event.target.id === 'togglePassword') {
+               const passwordInput = document.getElementById('password');
+               const toggleButton = event.target;
+               if (passwordInput.type === 'password') {
+                   passwordInput.type = 'text';
+                   toggleButton.textContent = '隱藏密碼';
+               } else {
+                   passwordInput.type = 'password';
+                   toggleButton.textContent = '顯示密碼';
+               }
+           }
+       });
+
+       // 更新會員資料
+       function updateMember() {
+           const userName = document.getElementById("firstName").value.trim();
+           const userEmail = document.getElementById("email").value.trim();
+           const userPassword = document.getElementById("password").value.trim();
+           const userTel = document.getElementById("phone").value.trim();
+
+           const updatedMember = {
+               userName: userName,
+               userEmail: userEmail,
+               userPassword: userPassword,
+               userTel: userTel
+           };
+
+           fetch("/profile/update", {
+               method: "PUT",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify(updatedMember)
+           })
+           .then(response => {
+               if (!response.ok) {
+                   throw new Error("Failed to update profile");
+               }
+               return response.text();
+           })
+           .then(message => {
+               alert(message);
+           })
+           .catch(error => {
+               console.error("Error:", error);
+               alert("更新失敗，請稍後再試。");
+           });
+       }
+   </script>
+</body>
+</html>
